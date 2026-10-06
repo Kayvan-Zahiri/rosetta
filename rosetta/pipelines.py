@@ -41,7 +41,7 @@ def diff_expr(
         >>> sig_genes = results[results["padj"] < 0.05]
     """
     if method == "deseq2":
-        from ._bridge import _converter, localconverter, ro
+        from . import _bridge
         from .wrappers.deseq2 import DESeq2
 
         model = DESeq2(counts, metadata, design)
@@ -49,7 +49,7 @@ def diff_expr(
 
         if shrinkage:
             # Need coefficient name for shrinkage
-            with localconverter(_converter):
+            with _bridge.localconverter(_bridge._converter):
                 coefs = list(model.deseq_pkg.resultsNames(model.r_obj))
             # Use last coefficient (typically the treatment effect)
             coef = coefs[-1] if coefs else None
@@ -60,7 +60,7 @@ def diff_expr(
 
         result_kwargs = {"alpha": alpha, "lfcThreshold": lfc_threshold}
         if contrast:
-            result_kwargs["contrast"] = ro.StrVector(contrast)
+            result_kwargs["contrast"] = _bridge.ro.StrVector(contrast)
         result = model.get_results(**result_kwargs)
         result._rosetta_method = "deseq2"
         return result
